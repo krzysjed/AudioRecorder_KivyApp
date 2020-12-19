@@ -4,7 +4,6 @@ This **REST API** allows us to integrate our app with Google Drive cloud storage
 upload audio file to his **My Drive** or maybe even **Shared Drive**.  API uses OAuth 2.0 authorization protocol which   
 authenticates user before every data flow.  
 
-----
 ### Authenticating users
 
 To get access to the API, every app must be registered on **Google APIs** site. Then Google provides developer with  
@@ -17,6 +16,8 @@ user is asked to authorize app action on his Google account. Then, Google grants
 a access token (**token.pickle**) and data flow can be started.
 
 ----
+
+** not finished **
 
 
 
