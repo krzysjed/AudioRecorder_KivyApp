@@ -5,6 +5,7 @@ upload audio file to his **My Drive** or maybe even **Shared Drive**.  API uses 
 authenticates user before every data flow.  
 
 ----
+### Authenticating users
 
 To get access to the API, every app must be registered on **Google APIs** site. Then Google provides developer with  
 **credentials.json**, which contains client ID and a client secret.  Thanks to this, application will have access to   
