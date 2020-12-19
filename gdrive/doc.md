@@ -6,7 +6,7 @@ authenticates user before every request.
 
 ----
 
-To get access to the API, every app must be registered on **Google APIs** site. Then Google provides developer with
+To get access to the API, every app must be registered on **Google APIs** site. Then Google provides developer with  
 **credentials.json**, which contains client ID and a client secret.  Thanks to this, application will have access to   
 user data in cloud storage. 
 
