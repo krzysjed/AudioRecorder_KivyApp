@@ -10,7 +10,10 @@ To get access to the API, every app must be registered on **Google APIs** site. 
 **credentials.json**, which contains client ID and a client secret.  Thanks to this, application will have access to   
 user data in cloud storage. 
 
-
+When app needs access to user data, it sends request to Google with specific **scope of access**.  
+Scopes define user access level to the cloud storage (what user can do etc.). After sending request,  
+user is asked to authorize app action on his Google account. After that, Google grants application  
+a access token.
 
 ----
 
