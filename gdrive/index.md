@@ -1,4 +1,5 @@
-## ** not finished **  
+## Description
+
 This directory contains everything about Google Drive API.
 
 ----
