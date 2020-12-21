@@ -22,6 +22,7 @@ Uses scope, which allows only read of file metadata. Script returns 10 last used
 Contains functions:  
 - **authorization()**,
 - **create_folder()**,
+- **create_permission()**, 
 - **upload_file()**,
 
 This Python script tests data upload to My Drive folder. For tests we have used 10 MB audio file in .wav format (nearly 1 minute long).  
