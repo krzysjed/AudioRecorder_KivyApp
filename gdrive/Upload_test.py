@@ -105,7 +105,6 @@ def create_folder(name):
           Folder ID sequence
     """
     mime = 'application/vnd.google-apps.folder'     # MIME type - identifies file format
-    identifier = None       # holds Folder ID (last sequence in URL address, when folder is opened)
 
     folder_metadata = {         # resources are represented by metadata
         'name': name,
