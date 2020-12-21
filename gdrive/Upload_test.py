@@ -30,8 +30,14 @@ Functions:
         - creates folder in user My Drive with specified name
         - returns created folder ID
     -----------------------------------------------------------
+    create_permission():
+        - creates a permission for a file/folder, which grants other users access to it
+        - returns None
+    -----------------------------------------------------------
     upload_file():
         - uploads file to a specified folder
+        - returns None
+
 """
 
 import pickle
@@ -116,6 +122,41 @@ def create_folder(name):
     return identifier
 
 
+def create_permission(file_identifier, permission_type, email_address, access_role):
+    """
+     Creates permission (shares) for file/folder
+     Parameters
+     ----------
+     file_identifier: str
+           File/folder ID
+
+     permission_type: str
+           Permission type ('user', 'group', 'domain', 'anyone')
+
+     email_address: str
+           Email address of users you want to share
+
+     access_role: str
+           User access ('onwer', 'organizer', 'fileOrganizer', 'writer', 'commenter', 'reader')
+
+     Returns
+     -------
+        None
+     """
+
+    permission_body = {                         # creates Permission body
+        "kind": "drive#permission",
+        "type": permission_type,                # 'user', 'group' etc.
+        "emailAddress": email_address,          # user or users e-mail address
+        "role": access_role,                    # what user/s can do
+        "sendNotificationEmail": True,          # notification to gmail
+    }
+
+    service.permissions().create(fileId=file_identifier, body=permission_body).execute()
+
+    return None
+
+
 def upload_file(file_name, file_mime, dir_id):
     """
     Uploads file to specified folder
@@ -150,6 +191,7 @@ if __name__ == '__main__':
     start_time = time.time()
     service = authorization(CLIENT_SECRET_FILE, API_NAME, API_VERSION, SCOPES)  # returns Resource object
     folder_id = create_folder('test_folder')  # creates folder
+    # create_permission(folder_id, 'user', 'example@gmail.com', 'reader')       # creates permission
     up_start = time.time()
     upload_file('file_example_WAV_10MG.wav', 'audio / wav', folder_id)  # uploads file
     end_time = time.time()
