@@ -111,19 +111,9 @@ def create_folder(name):
         'name': name,
         'mimeType': mime
     }
-    service.files().create(body=folder_metadata).execute()  # creates folder specified in metadata
+    folder = service.files().create(body=folder_metadata).execute()  # creates folder specified in metadata
+    identifier = get.folder('id') # gets folder id
 
-    # looking for ID of created folder
-    response = service.files().list(spaces='drive',     # searches only in My Drive
-                                    fields='nextPageToken, files(name, id)',    # what should be included in response
-                                    ).execute()
-    items = response.get('files', [])   # saves response in list
-    for item in items:
-        if item['name'] == name:            # looking for folder ID
-            identifier = item['id']
-            break
-
-    print("Folder created!")
     return identifier
 
 
