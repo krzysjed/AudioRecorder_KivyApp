@@ -1,0 +1,70 @@
+<MainWindow>:
+    name: "main"
+    rec_btn: rec
+    play_btn: play
+    del_Btn: delete
+
+    BoxLayout:
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                source:"ai-eeg-data-processing.jpg"
+        orientation: 'vertical'
+        Label:
+            text: "WaveReco"
+            color: 1, 1, 1, 0.7
+            bold: True
+            font_size:"50sp"
+            size: self.texture_size
+            background_color: 'red'
+            size_hint: (1,.4)
+            pos_hint: { 'top': .9}
+        FloatLayout:
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 0
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            orientation: 'vertical'
+            Button:
+                id: rec
+                name: "recBtn"
+                color: 1, 1, 1, 0.7
+                text: "Record"
+                font_size:"40sp"
+                size_hint: (.5,.16)
+                pos_hint: { 'right': .75, 'top' : .7}
+                on_press: root.record()
+                background_color: 0,0,0,.5
+            Button:
+                id: play
+                name: "playBtn"
+                color: 1, 1, 1, 0.7
+                text: "Play"
+                font_size:"40sp"
+                size_hint: (.5,.16)
+                pos_hint: { 'right': .75, 'top' : .5}
+                on_press: root.play()
+                background_color: 0,0,0,.5
+            Button:
+                id: delete
+                name: "delBtn"
+                color: 1, 1, 1, 0.7
+                text: "Delete recording"
+                font_size:"40sp"
+                size_hint: (.5,.16)
+                pos_hint: { 'right': .75, 'top' : .3}
+                on_press: root.delete()
+                background_color: 0,0,0,.5
+
+
+
+<AfterRecordWindow>:
+    name: "second"
+
+    Button:
+        text: "Go back"
