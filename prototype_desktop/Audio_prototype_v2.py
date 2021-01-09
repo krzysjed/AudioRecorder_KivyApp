@@ -1,4 +1,3 @@
-
 from kivy.core.window import Window
 from kivy.app import App
 import sounddevice as sd
@@ -61,7 +60,7 @@ class MainWindow(Screen):
         Window.close()
 
     def send(self):
-        x=Upload()
+        Upload()
 
 
 
