@@ -1,6 +1,6 @@
 ## **Description**
 
-Directory contains prototype working only desktop
+Directory contains prototype working only desktop.  
 Prototype can:  
 - record audio in .wav,
 - save and delete recorded audio,
