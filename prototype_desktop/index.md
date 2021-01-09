@@ -1,7 +1,7 @@
 ## **Description**
 
 Directory contains prototype working only desktop.  
-Prototype can:  
+Prototype can:
 - record audio in .wav,
 - save and delete recorded audio,
 - upload recorded audio to user gdrive and give  
