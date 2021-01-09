@@ -13,6 +13,7 @@
                 size: self.size
                 source:"ai-eeg-data-processing.jpg"
         orientation: 'vertical'
+
         Label:
             text: "WaveReco"
             color: 1, 1, 1, 0.7
@@ -61,10 +62,63 @@
                 on_press: root.delete()
                 background_color: 0,0,0,.5
 
+            Button:
+                id: settings
+                name: "settBtn"
+                color: 1, 1, 1, 0.7
+                font_size:"40sp"
+                size_hint: (.1,.2)
+                pos_hint: { 'right': 1, 'top' : .2}
+                background_color: 0,0,0,.5
+                text: 'Settings'
+                on_press: app.open_settings()
 
+            Button:
+                id: exit
+                name: "exitBtn"
+                color: 1, 1, 1, 0.7
+                font_size:"40sp"
+                size_hint: (.1,.2)
+                pos_hint: { 'right': 0.1, 'top' : .2}
+                background_color: 0,0,0,.5
+                text: 'Exit'
+                on_press: root.exit()
 
-<AfterRecordWindow>:
-    name: "second"
+<SettingsScreen>:  #on_press: root.manager.current = 'settings' <-button set change the screen
 
-    Button:
-        text: "Go back"
+    BoxLayout:
+        ###############################Grafic
+        canvas.before:
+            Color:
+                rgba: 1, 1, 1, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+                source:"ai-eeg-data-processing.jpg"
+        orientation: 'vertical'
+
+        Label:
+            text: "WaveReco"
+            color: 1, 1, 1, 0.7
+            bold: True
+            font_size:"50sp"
+            size: self.texture_size
+            background_color: 'red'
+            size_hint: (1,.4)
+            pos_hint: { 'top': .9}
+        FloatLayout:
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 0
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+        Button:
+            name: "MenuBtn"
+            font_size:"40sp"
+            size_hint: (.1,.2)
+            pos_hint: { 'right': 1, 'top' : .2}
+            text: 'Main'
+            on_press: root.manager.current = 'main'
+            background_color: 0,0,0,.5
+            color: 1, 1, 1, 0.7
