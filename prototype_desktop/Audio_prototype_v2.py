@@ -63,7 +63,7 @@ class MainWindow(Screen):
         Upload(self.config_data)
 
 
-class MyPaintApp(App):
+class WaveReco(App):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -218,4 +218,4 @@ class Upload:
         return None
 
 
-MyPaintApp().run()
+WaveReco().run()
