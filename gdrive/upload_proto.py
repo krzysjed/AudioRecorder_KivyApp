@@ -53,12 +53,12 @@ def upload(folder_name, file_name, user_email=None, access=None):
         service.permissions().create(fileId=folder_identifier, body=permission_body).execute()
 
     # selecting MIME type
-        if file_name[-4:] == ".wav":
-            file_mime = 'audio / wav'
-        elif file_name[-4:] == ".mp3":
-            file_mime = 'audio / mpeg'
-        elif file_name[-5:] == ".flac":
-            file_mime = "audio / flac"
+    if file_name[-4:] == ".wav":
+        file_mime = 'audio / wav'
+    elif file_name[-4:] == ".mp3":
+        file_mime = 'audio / mpeg'
+    elif file_name[-5:] == ".flac":
+        file_mime = "audio / flac"
     
     # uploading file
     file_metadata = {  # resources are represented by metadata
