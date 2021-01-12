@@ -4,10 +4,15 @@ This directory contains everything about Google Drive API.
 
 ----
 
-#### **Tests**
+#### **Upload prototype** 
 
-Because of safety reasons, .json credential file which was used for tests is not provided.  
-Scripts should work on every .json credentials.
+###### **Upload_proto.py**
+
+Contains authorization function and upload function. 
+Three types of audio files can be sent: .mp3, .wav, .flac.   
+Also access can be given to the other users. Files are uploaded to a new folder with specified name.
+
+#### **Tests**
 
 ###### **OAuth2_test.py**
 
