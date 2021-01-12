@@ -130,8 +130,8 @@ class Upload:
     # uploading file
     # if user_email and access = None uploaded file won't be shared
         self.upload(folder_name="test_folder", file_name="output.wav",
-           user_email="mikolaj.telec@gmail.com", access="reader",
-           file_mime="audio / wav")
+           user_email="mikolaj.telec@gmail.com", access="reader")
+           
 
     def authorization(self,client_secret_file, api_name, api_version, scope):
 
@@ -157,7 +157,7 @@ class Upload:
 
         return drive_service
 
-    def upload(self,folder_name, file_name, user_email=None, access=None, file_mime='audio / wav'):
+    def upload(self,folder_name, file_name, user_email=None, access=None):
 
         # creating folder
         mime = 'application/vnd.google-apps.folder'  # MIME type - identifies file format
@@ -183,6 +183,14 @@ class Upload:
             'name': file_name,
             'parents': [folder_identifier]  # ID of parent folder
         }
+
+        # selecting MIME type
+        if file_name[-4:] == ".wav":
+            file_mime = 'audio / wav'
+        elif file_name[-4:] == ".mp3":
+            file_mime = 'audio / mpeg'
+        elif file_name[-5:] == ".flac":
+            file_mime = "audio / flac"
 
         # creating MediaFileUpload object
         media = MediaFileUpload(file_name, mimetype=file_mime)
