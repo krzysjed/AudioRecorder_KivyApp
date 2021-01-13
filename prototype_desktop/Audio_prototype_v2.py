@@ -109,10 +109,39 @@ class WaveReco(App):
 
 
     def on_config_change(self, config, section, key, value):
+        #  print(config, section, key, value)
+        if key == "SamplingSetting":
+            if int(value) > 384000:
+                self.config.set("Record", "SamplingSetting", 384000)
+                self.config.write()
+                self.destroy_settings()
+            elif int(value) < 1000:
+                self.config.set("Record", "SamplingSetting", 1000)
+                self.config.write()
+                self.destroy_settings()
 
-        print(config, section, key, value)
-        #self.config.set("Record","DurationSetting",8)
-        #self.config.write()
+        sampling = int(config.get("Record", "SamplingSetting"))
+        duration = int(config.get("Record", "DurationSetting"))
+        channels = int(config.get("Record", "ChannelSetting"))  # number of channels
+        max_memory = 190000000  # size of max matrix
+        if key == "DurationSetting":
+            if int(value) * sampling * channels > max_memory:
+                self.config.set("Record", "DurationSetting", round(max_memory/ (sampling * channels)))
+                self.config.write()
+                self.destroy_settings()
+
+        elif key == "SamplingSetting":
+            print(int(value) * duration * channels)
+            if int(value) * duration * channels > max_memory:
+                self.config.set("Record", "SamplingSetting", 384000 if round(max_memory/(duration * channels)) >= 384000 else round(max_memory/(duration * channels)))
+                self.config.write()
+                self.destroy_settings()
+
+        elif key == "ChannelSetting":
+            if int(value) * duration * sampling > max_memory:
+                self.config.set("Record", "ChannelSetting", 1)
+                self.config.write()
+                self.destroy_settings()
 
     def display_settings(self, settings):  # customization of settings
         try:
