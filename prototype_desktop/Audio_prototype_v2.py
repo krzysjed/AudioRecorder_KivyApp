@@ -16,7 +16,8 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
-
+from kivy.config import Config
+Config.set('input','mouse','mouse,multitouch_on_demand')
 Builder.load_file("style.kv")
 
 
