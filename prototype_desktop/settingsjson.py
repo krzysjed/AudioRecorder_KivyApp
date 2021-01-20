@@ -33,11 +33,11 @@ Recording_settings_json = json.dumps([
      'desc': 'Record file name',
      'section': 'Record',
      'key': 'File_Name'},
-   # {'type': 'path',
-    # 'title': 'A path setting',
-    # 'desc': 'Path description text',
-   #  'section': 'Record',
-    # 'key': 'pathexample'}
+    {'type': 'path',
+     'title': 'A path setting',
+     'desc': 'Path description text',
+     'section': 'Record',
+     'key': 'PathSetting'}
    ])
 
 
