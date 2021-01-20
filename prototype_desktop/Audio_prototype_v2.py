@@ -5,7 +5,8 @@ from scipy.io.wavfile import write
 from scipy.io import wavfile
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-import os
+import os, shutil
+import pathlib
 from kivy.uix.popup import Popup
 from kivy.uix.settings import SettingsWithTabbedPanel
 from settingsjson import Recording_settings_json
@@ -17,8 +18,16 @@ from googleapiclient.http import MediaFileUpload
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from kivy.config import Config
-Config.set('input','mouse','mouse,multitouch_on_demand')
+
+os.environ['KIVY_IMAGE'] = 'pil,sdl2'  # to add wallpaper (.exe)
+Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Builder.load_file("style.kv")
+
+try:
+    os.mkdir("Audio_file")
+    Common_path = pathlib.PurePath(pathlib.Path("Audio_file").parent.absolute(), pathlib.Path("Audio_file"))
+except FileExistsError:
+    Common_path = pathlib.PurePath(pathlib.Path("Audio_file").parent.absolute(), pathlib.Path("Audio_file"))
 
 
 class MainWindow(Screen):
@@ -27,34 +36,56 @@ class MainWindow(Screen):
         self.config_data = config_data
 
     def play(self):
+        self.play_btn.text = "Play!"
+        fs = int(self.config_data.get('Record', 'SamplingSetting'))
         try:
-            fs = int(self.config_data.get('Record', 'SamplingSetting'))
-            sample, data = wavfile.read(self.config_data.get('Record', 'File_Name')+self.config_data.get('Record', 'ExtensionSetting'))
-            sd.play(data, fs)
-            sd.wait()
+            selected_file = os.path.join(self.config_data.get('Record', 'PathSetting'))
+            extension = os.path.splitext(selected_file)[-1].lower()
+            if extension == ".mp3" or extension == ".flac" or extension == ".wav":
+                sample, data = wavfile.read(selected_file)
+                sd.play(data, fs)
+                sd.wait()
+            else:
+                self.play_btn.text = "Bad extension or luck file!"
+
         except IOError:
             self.play_btn.text = "No file!"
 
     def record(self):
 
         if self.rec_btn.text == "Record":
-            self.rec_btn.text = "Recorded"
-            fs = int(self.config_data.get('Record', 'SamplingSetting'))        # sampling max  384000  ;p
+            self.rec_btn.text = "Recording"
+            fs = int(self.config_data.get('Record', 'SamplingSetting'))  # sampling max  384000  ;p
             seconds = int(self.config_data.get('Record', 'DurationSetting'))  # duration of recording
-            myrecording = sd.rec(seconds * fs, samplerate=fs, channels=int(self.config_data.get('Record', 'ChannelSetting')))
+            myrecording = sd.rec(seconds * fs, samplerate=fs,
+                                 channels=int(self.config_data.get('Record', 'ChannelSetting')))
             sd.wait()  # Wait until recording is finished
-            write(self.config_data.get('Record', 'File_Name')+self.config_data.get('Record', 'ExtensionSetting'), fs, myrecording)
-            self.del_Btn.color = 1, 1, 1, 0.7
-            self.del_Btn.background_color = 0, 0, 0, .5
+
+            name = self.config_data.get('Record', 'File_Name')
+            extension = self.config_data.get('Record', 'ExtensionSetting')
+            write(name + extension, fs, myrecording)
+
+            while True:
+                try:
+                    shutil.move(name + extension, Common_path)
+                    break
+                except IOError:
+                    os.rename(name + extension, name + "0" + extension)
+                    name = name + "0"
+
+            self.rec_btn.text = "Record"
+            # self.del_Btn.color = 1, 1, 1, 0.7
+            # self.del_Btn.background_color = 0, 0, 0, .5
 
     def delete(self):
         try:
-            os.remove(self.config_data.get('Record', 'File_Name')+self.config_data.get('Record', 'ExtensionSetting'))
+            os.remove(self.config_data.get('Record', 'PathSetting'))
             self.rec_btn.text = "Record"
+
         except IOError:
             pass
-        self.del_Btn.color = 1, 1, 1, 0.2
-        self.del_Btn.background_color = 0, 0, 0, 0.2
+        #self.del_Btn.color = 1, 1, 1, 0.2
+        #self.del_Btn.background_color = 0, 0, 0, 0.2
 
     def exit(self):
         App.get_running_app().stop()
@@ -85,8 +116,8 @@ class WaveReco(App):
             'ChannelSetting': '2',
             'ExtensionSetting': '.wav',
             'File_Name': 'Recording',
-            #'pathexample': '/some/path'
-            })
+            'PathSetting': Common_path
+        })
         config.setdefaults(
             'Upload', {
                 'AccessSetting': 'reader',
@@ -103,11 +134,6 @@ class WaveReco(App):
         settings.add_json_panel('Cloud',
                                 self.config,
                                 data=Upload_settings_json)
-
-        #settings.add_json_panel('Another itd',
-                                #self.config,
-                               # data="")
-
 
     def on_config_change(self, config, section, key, value):
         #  print(config, section, key, value)
@@ -132,7 +158,6 @@ class WaveReco(App):
                 self.destroy_settings()
 
         elif key == "SamplingSetting":
-            print(int(value) * duration * channels)
             if int(value) * duration * channels > max_memory:
                 self.config.set("Record", "SamplingSetting", 384000 if round(max_memory/(duration * channels)) >= 384000 else round(max_memory/(duration * channels)))
                 self.config.write()
@@ -176,9 +201,16 @@ class Upload:
 
         # uploading file
         # if user_email and access = None uploaded file won't be shared
-        self.upload(folder_name=self.config_data.get('Upload', 'FileTarget'), file_name=self.config_data.get('Record', 'File_Name')+self.config_data.get('Record', 'ExtensionSetting'),
-                    user_email=self.config_data.get('Upload', 'User_Email'), access="" if self.config_data.get('Upload', 'AccessSetting') == "None" else self.config_data.get('Upload', 'AccessSetting') )
+        try:
+            file_to_send =os.path.join(self.config_data.get('Record', 'PathSetting'))
+            self.upload(folder_name=self.config_data.get('Upload', 'FileTarget'),
+                        #file_name=self.config_data.get('Record', 'File_Name')+self.config_data.get('Record', 'ExtensionSetting'),
+                        file_name= file_to_send, ### file name = path
+                        user_email=self.config_data.get('Upload', 'User_Email'),
+                        access="" if self.config_data.get('Upload', 'AccessSetting') == "None" else self.config_data.get('Upload', 'AccessSetting'))
 
+        except IOError:
+            pass
     def authorization(self, client_secret_file, api_name, api_version, scope):
         creds = None
 
