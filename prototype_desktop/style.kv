@@ -67,7 +67,7 @@
                 name: "settBtn"
                 color: 1, 1, 1, 0.7
                 font_size:"40sp"
-                size_hint: (.1,.2)
+                size_hint: (.2,.2)
                 pos_hint: { 'right': 1, 'top' : .2}
                 background_color: 0,0,0,.5
                 text: 'Settings'
@@ -94,6 +94,17 @@
                 background_color: 0,0,0,.5
                 text: 'Send'
                 on_press: root.send()
+
+            Button:
+                id: del_pickle
+                name: "pickleBtn"
+                color: 1, 1, 1, 0.7
+                font_size:"40sp"
+                size_hint: (.2,.2)
+                pos_hint: { 'right': 1, 'top' : .4}
+                background_color: 0,0,0,.5
+                text: 'Del A.Token'
+                on_press: root.delete_pickle()
 
 <SettingsScreen>:  #on_press: root.manager.current = 'settings' <-button set change the screen
 
