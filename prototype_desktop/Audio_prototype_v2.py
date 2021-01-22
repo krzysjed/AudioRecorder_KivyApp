@@ -37,13 +37,17 @@ class MainWindow(Screen):
 
     def play(self):
         self.play_btn.text = "Play!"
-        fs = int(self.config_data.get('Record', 'SamplingSetting'))
         try:
+            playback_setting = self.config_data.get('Record', 'PlaybackSetting')
             selected_file = os.path.join(self.config_data.get('Record', 'PathSetting'))
             extension = os.path.splitext(selected_file)[-1].lower()
             if extension == ".mp3" or extension == ".flac" or extension == ".wav":
                 sample, data = wavfile.read(selected_file)
-                sd.play(data, fs)
+                if playback_setting == '1':
+                    fs = int(self.config_data.get('Record', 'SamplingSetting'))
+                    sd.play(data, fs)
+                else:
+                    sd.play(data, sample)
                 sd.wait()
             else:
                 self.play_btn.text = "Bad extension or luck file!"
@@ -112,6 +116,7 @@ class WaveReco(App):
 
         config.setdefaults('Record', {
             'SamplingSetting': '40000',
+            'PlaybackSetting': False,
             'DurationSetting': '5',
             'ChannelSetting': '2',
             'ExtensionSetting': '.wav',
