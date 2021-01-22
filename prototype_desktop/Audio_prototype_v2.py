@@ -104,8 +104,7 @@ class MainWindow(Screen):
 
         except IOError:
             pass
-        #self.del_Btn.color = 1, 1, 1, 0.2
-        #self.del_Btn.background_color = 0, 0, 0, 0.2
+            
 class WaveReco(App):
 
     def __init__(self, **kwargs):
