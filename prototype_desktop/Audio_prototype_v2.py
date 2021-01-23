@@ -13,6 +13,7 @@ from settingsjson import Recording_settings_json
 from settingsjson import Upload_settings_json
 import pickle
 import os.path
+import datetime
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -88,8 +89,8 @@ class MainWindow(Screen):
 
         except IOError:
             pass
-        #self.del_Btn.color = 1, 1, 1, 0.2
-        #self.del_Btn.background_color = 0, 0, 0, 0.2
+        # self.del_Btn.color = 1, 1, 1, 0.2
+        # self.del_Btn.background_color = 0, 0, 0, 0.2
 
     def exit(self):
         App.get_running_app().stop()
@@ -104,7 +105,8 @@ class MainWindow(Screen):
 
         except IOError:
             pass
-            
+
+
 class WaveReco(App):
 
     def __init__(self, **kwargs):
@@ -134,7 +136,7 @@ class WaveReco(App):
                 'AccessSetting': 'reader',
                 'FileTarget': 'Test_file',
                 'User_Email': 'user@gmail.com',
-                })
+            })
 
     def build_settings(self, settings):
 
@@ -164,13 +166,15 @@ class WaveReco(App):
         max_memory = 190000000  # size of max matrix
         if key == "DurationSetting":
             if int(value) * sampling * channels > max_memory:
-                self.config.set("Record", "DurationSetting", round(max_memory/ (sampling * channels)))
+                self.config.set("Record", "DurationSetting", round(max_memory / (sampling * channels)))
                 self.config.write()
                 self.destroy_settings()
 
         elif key == "SamplingSetting":
             if int(value) * duration * channels > max_memory:
-                self.config.set("Record", "SamplingSetting", 384000 if round(max_memory/(duration * channels)) >= 384000 else round(max_memory/(duration * channels)))
+                self.config.set("Record", "SamplingSetting",
+                                384000 if round(max_memory / (duration * channels)) >= 384000 else round(
+                                    max_memory / (duration * channels)))
                 self.config.write()
                 self.destroy_settings()
 
@@ -186,13 +190,13 @@ class WaveReco(App):
         except AttributeError:
             self.settings_popup = Popup(content=settings,
                                         title='Settings',
-                                         size_hint=(0.9, 0.9))
+                                        size_hint=(0.9, 0.9))
             p = self.settings_popup
         if p.content is not settings:
             p.content = settings
         p.open()
 
-    def close_settings(self, settings,*args):
+    def close_settings(self, settings, *args):
         try:
             p = self.settings_popup
             p.dismiss()
@@ -213,15 +217,18 @@ class Upload:
         # uploading file
         # if user_email and access = None uploaded file won't be shared
         try:
-            file_to_send =os.path.join(self.config_data.get('Record', 'PathSetting'))
+            file_to_send = os.path.join(self.config_data.get('Record', 'PathSetting'))
             self.upload(folder_name=self.config_data.get('Upload', 'FileTarget'),
-                        #file_name=self.config_data.get('Record', 'File_Name')+self.config_data.get('Record', 'ExtensionSetting'),
-                        file_name= file_to_send, ### file name = path
+                        # file_name=self.config_data.get('Record', 'File_Name')+self.config_data.get('Record', 'ExtensionSetting'),
+                        file_name=file_to_send,  ### file name = path
                         user_email=self.config_data.get('Upload', 'User_Email'),
-                        access="" if self.config_data.get('Upload', 'AccessSetting') == "None" else self.config_data.get('Upload', 'AccessSetting'))
+                        access="" if self.config_data.get('Upload',
+                                                          'AccessSetting') == "None" else self.config_data.get('Upload',
+                                                                                                               'AccessSetting'))
 
         except IOError:
             pass
+
     def authorization(self, client_secret_file, api_name, api_version, scope):
         creds = None
 
@@ -246,28 +253,87 @@ class Upload:
         return drive_service
 
     def upload(self, folder_name, file_name, user_email=None, access=None):
-
-        # creating folder
         mime = 'application/vnd.google-apps.folder'  # MIME type - identifies file format
-        folder_metadata = {  # resources are represented by metadata
-            'name': folder_name,
-            'mimeType': mime
-        }
-        folder = self.service.files().create(body=folder_metadata, fields='id').execute()  # creates folder
-        folder_identifier = folder.get('id')  # gets folder id for creating permission
+        folder_identifier = None
+        page_token = None
 
-        # adding permission to folder and it's content if...
-        if user_email and access:
-            permission_body = {
-                "kind": "drive#permission",
-                "type": "user",
-                "emailAddress": user_email,
-                "role": access
+        # CHECKS IF FOLDER ALREADY EXISTS
+        response = self.service.files().list(q="mimeType='application/vnd.google-apps.folder'",
+                                             spaces='drive',
+                                             fields='nextPageToken, files(id, name)',
+                                             pageToken=page_token).execute()
+        for file in response.get('files', []):
+            if file.get('name') == folder_name:
+                folder_identifier = file.get('id')
+                # gets permissions on the file
+                perm = self.service.permissions().list(fileId=folder_identifier,
+                                                       fields='permissions(emailAddress, role)').execute()
+                # deletes owner email from permissions list
+                shared_users = [i for i in perm['permissions'] if not (i['role'] == 'owner')]
+                # print(shared_users)
+                break
+
+        # IF NO FOLDER CREATED
+        if not folder_identifier:
+            # creating folder
+            folder_metadata = {  # resources are represented by metadata
+                'name': folder_name,
+                'mimeType': mime
             }
-            self.service.permissions().create(fileId=folder_identifier, body=permission_body).execute()
+            folder = self.service.files().create(body=folder_metadata, fields='id').execute()  # creates folder
+            folder_identifier = folder.get('id')  # gets folder id for creating permission
+            # shares folder
+            if user_email and access:
+                permission_body = {
+                    "kind": "drive#permission", "type": "user",
+                    "emailAddress": user_email, "role": access
+                }
+                self.service.permissions().create(fileId=folder_identifier, body=permission_body).execute()
+        # IF FOLDER CREATED
+        else:
+            # IF NOT SHARED WITH ANYONE
+            if not shared_users:
+                # IF WE WANT TO SHARE WITH SOMEONE
+                if user_email and access:
+                    permission_body = {
+                        "kind": "drive#permission", "type": "user",
+                        "emailAddress": user_email, "role": access
+                    }
+                    self.service.permissions().create(fileId=folder_identifier, body=permission_body).execute()
+                # IF NO, WE MOVE ON
+                else:
+                    pass
+            # IF SHARED WITH SOMEONE
+            else:
+                for user in shared_users:
+                    # IF WE HAVE GIVEN SAME EMAIL AGAIN
+                    if user['emailAddress'] == user_email and user['role'] == access:
+                        pass
+                    # IF WE HAVE GIVEN SAME EMAIL BUT OTHER ROLE ('reader' , 'writer')
+                    # WE ARE CREATING NEW FOLDER WITH SIMILAR NAME
+                    elif user['emailAddress'] == user_email and user['role'] != access:
+                        suffix = str(datetime.datetime.now())
+                        folder_metadata = {
+                            'name': folder_name + " " + suffix[:-7],
+                            'mimeType': mime
+                        }
+                        folder = self.service.files().create(body=folder_metadata, fields='id').execute()
+                        folder_identifier = folder.get('id')  # gets folder id for creating permission
+                        permission_body = {
+                            "kind": "drive#permission", "type": "user",
+                            "emailAddress": user_email, "role": access
+                        }
+                        self.service.permissions().create(fileId=folder_identifier, body=permission_body).execute()
+                    # IF WE WANT TO SHARE FOLDER WITH NEXT PERSON
+                    else:
+                        permission_body = {
+                            "kind": "drive#permission", "type": "user",
+                            "emailAddress": user_email, "role": access
+                        }
+                        self.service.permissions().create(fileId=folder_identifier, body=permission_body).execute()
 
-        # uploading file
-        file_metadata = {  # resources are represented by metadata
+        # UPLOAD
+        file_metadata = {
             'name': file_name,
             'parents': [folder_identifier]  # ID of parent folder
         }
