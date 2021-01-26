@@ -24,12 +24,6 @@ os.environ['KIVY_IMAGE'] = 'pil,sdl2'  # to add wallpaper (.exe)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 Builder.load_file("style.kv")
 
-try:
-    os.mkdir("Audio_file")
-    Common_path = pathlib.PurePath(pathlib.Path("Audio_file").parent.absolute(), pathlib.Path("Audio_file"))
-except FileExistsError:
-    Common_path = pathlib.PurePath(pathlib.Path("Audio_file").parent.absolute(), pathlib.Path("Audio_file"))
-
 
 class MainWindow(Screen):
     def __init__(self, config_data):
@@ -72,7 +66,7 @@ class MainWindow(Screen):
 
             while True:
                 try:
-                    shutil.move(name + extension, Common_path)
+                    shutil.move(name + extension, self.Common_path)
                     break
                 except IOError:
                     os.rename(name + extension, name + "0" + extension)
@@ -111,7 +105,11 @@ class WaveReco(App):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
+        try:
+            os.mkdir("Audio_file")
+            self.Common_path = pathlib.PurePath(pathlib.Path("Audio_file").parent.absolute(), pathlib.Path("Audio_file"))
+        except FileExistsError:
+            self.Common_path = pathlib.PurePath(pathlib.Path("Audio_file").parent.absolute(), pathlib.Path("Audio_file"))
     def build(self):
 
         self.settings_cls = SettingsWithTabbedPanel
@@ -131,7 +129,7 @@ class WaveReco(App):
             'ChannelSetting': '2',
             'ExtensionSetting': '.wav',
             'File_Name': 'Recording',
-            'PathSetting': Common_path
+            'PathSetting': self.Common_path
         })
         config.setdefaults(
             'Upload', {
