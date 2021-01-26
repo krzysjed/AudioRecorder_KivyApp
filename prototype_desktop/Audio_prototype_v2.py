@@ -118,6 +118,8 @@ class WaveReco(App):
         self.use_kivy_settings = False
         sm = ScreenManager()
         sm.add_widget(MainWindow(self.config))
+        self.config.set("Record", "PathSetting", self.Common_path)
+        self.config.write()
         return sm
 
     def build_config(self, config):
