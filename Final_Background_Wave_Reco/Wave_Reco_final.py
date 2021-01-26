@@ -51,7 +51,6 @@ class MainWindow(Screen):
             self.play_btn.text = "No file!"
 
     def record(self):
-
         if self.rec_btn.text == "Record":
             self.rec_btn.text = "Recording"
             fs = int(self.config_data.get('Record', 'SamplingSetting'))  # sampling max  384000  ;p
@@ -73,9 +72,7 @@ class MainWindow(Screen):
                     name = name + "0"
 
             self.rec_btn.text = "Record"
-            # self.del_Btn.color = 1, 1, 1, 0.7
-            # self.del_Btn.background_color = 0, 0, 0, .5
-
+           
     def delete(self):
         try:
             os.remove(self.config_data.get('Record', 'PathSetting'))
@@ -83,9 +80,7 @@ class MainWindow(Screen):
 
         except IOError:
             pass
-        # self.del_Btn.color = 1, 1, 1, 0.2
-        # self.del_Btn.background_color = 0, 0, 0, 0.2
-
+       
     def exit(self):
         App.get_running_app().stop()
         Window.close()
@@ -96,7 +91,6 @@ class MainWindow(Screen):
     def delete_pickle(selfs):
         try:
             os.remove('token.pickle')
-
         except IOError:
             pass
 
